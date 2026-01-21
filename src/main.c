@@ -37,7 +37,7 @@ void parse_file(const char *filename) {
     char *temp;
     while (fgets(curr_line, 1024, fin) != NULL) {
         temp = curr_line;
-        // TODO: Headers
+        // Headers
         while (*temp == '#') {
             *temp = '*';
             (temp)++;
@@ -45,6 +45,7 @@ void parse_file(const char *filename) {
 
         // TODO: parameters
         // TODO: bold
+        // need to parse entire line
         // TODO: Italics
         // TODO: strikethroughs
         // TODO: blockquote
