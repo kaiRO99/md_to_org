@@ -1,9 +1,12 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 void parse_file(const char *filename);
+
+bool in_block = false;
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -33,7 +36,10 @@ void parse_file(const char *filename) {
         printf("Error: Could not open file.\n");
         exit(EXIT_FAILURE);
     }
+    // pointer for current line it is processing
     char *curr_line = (char *)malloc(sizeof(char) * 1024); // TODO: verify size
+    // pointer for when some string concatenation is required
+    char *new_str = (char *)malloc(sizeof(char) * 1024); // TODO: verify size
     char *temp;
     while (fgets(curr_line, 1024, fin) != NULL) {
         temp = curr_line;
@@ -41,6 +47,40 @@ void parse_file(const char *filename) {
         while (*temp == '#') {
             *temp = '*';
             (temp)++;
+        }
+        // NOTE: Codeblock
+        // ``` language
+        // ```
+        // into
+        // #+BEGIN_SRC language
+        // #+END_SRC
+        if (*temp == '`' && *(temp + 1) == '`' && *(temp + 2) == '`') {
+            // entering codeblock, need to keep language.
+            if (in_block == false) {
+                size_t original_len = strlen(curr_line);
+                size_t new_len = original_len + 9;
+
+                char *curr_pos = new_str;
+                // copy #+BEGIN_SRC
+                strncpy(curr_pos, "#+BEGIN_SRC ", 12);
+                curr_pos += 12;
+
+                // ! Is there a better way to do this? no need for curr pos or
+                // new str, strcpy directly into new line?
+
+                // copy rest of string
+                strcpy(curr_pos, curr_line + 3);
+                // set curr_line to new str
+                strcpy(curr_line, new_str);
+                in_block = true;
+
+            } else {
+                // we are at end of block
+                // need to also print the \n
+                char new_line[] = "#+END_SRC\n";
+                strcpy(curr_line, new_line);
+                in_block = false;
+            }
         }
 
         // TODO: parameters
@@ -53,9 +93,8 @@ void parse_file(const char *filename) {
         // TODO: Lists
         // TODO: checkboxes
         // TODO:
-        printf("%s\n", curr_line);
         fputs(curr_line, fout);
-
+        memset(new_str, 0, strlen(new_str));
         memset(curr_line, 0, strlen(curr_line));
     }
 
@@ -66,6 +105,9 @@ void parse_file(const char *filename) {
     //
     if (curr_line) {
         free(curr_line);
+    }
+    if (new_str) {
+        free(new_str);
     }
     fclose(fout);
     fclose(fin);
