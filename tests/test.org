@@ -1,0 +1,60 @@
+testing bold  *aesting*  this.
+#+BEGIN_SRC Python
+in codeblock
+#+END_SRC
+teste doubles  * /bolded italic* / 
+test doubles  * /bolded italic* / 
+test mixes  / *italicised bold* / 
+test mixes w/extra  /italicized *bold* / 
+code test ~code~ here is more text.
+
+ *bold* 
+ *bold* 
+
+ /italics/ 
+ /italics/ 
+
+ +strikethrough+ 
+
+testing wihttithin text *bold*  with text after
+testing wihttithin text *bold*  with text after
+
+testing wihttithin text /italics/  with text after
+testing wihttithin text /italics/  with text after
+
+testing wihttithin text +strikethrough+  with text after
+
+* TEST
+
+testing 
+
+** testing h2
+
+text 
+
+#+BEGIN_SRC  python
+Here is a code block
+#+END_SRC
+
+ /test */ test* 
+
+** lists
+
+ordered 
+1. item w
+2. item 3
+   1. nested ordered
+   2. nested or
+   - nested unord
+   
++ unordered
+ / unordered
+- unordered
+  + nested
+  - nested
+  /  nested
+  1. nested
+  2. nested
+
+test
+    - nested?
