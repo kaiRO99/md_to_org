@@ -135,8 +135,13 @@ void parse_file(const char *filename, const char *target_filename) {
             prev = '~';
             continue;
         }
-        if (!in_code && !in_code_block) {
+        if (!in_code || !in_code_block) {
             // check for emphasis
+            // bold
+            // Italics
+            // strikethroughs
+            // make this only run if it is paragraph or within a quote?
+
             //  if * or _ we need to check the next too
             if (curr_char == '*' || curr_char == '_') {
                 // ensure next is the same
@@ -215,22 +220,72 @@ void parse_file(const char *filename, const char *target_filename) {
                     prev = curr_char;
                     continue; // go to next char
                 }
+            } else if (curr_char == '|') {
+                // TODO: tables
+                int next_char = fgetc(fin);
+                int next_next_char = fgetc(fin);
+
+                if ((next_char == ' ' && next_next_char == '-') ||
+                    (next_char == '-')) {
+                    // we are in a table separator
+                    // we want to replce all | except bookends with +
+                    // put chars back
+                    ungetc(next_next_char, fin);
+                    ungetc(next_char, fin);
+                    ungetc(curr_char, fin);
+
+                    // get whole line
+                    fgets(curr_line, 1024, fin);
+                    //
+                    // naming here is terrible, curr_pos is of new str, remp is
+                    // of curr_line
+                    char *curr_pos = new_str;
+                    // here we want to iterate through curr_line, when we get to
+                    // a space, skip
+                    temp = curr_line;
+                    // copy first |
+                    *curr_pos = *temp;
+                    curr_pos++;
+                    temp++;
+                    while (*temp != '\n' || '\0') {
+                        if (*temp == '|' && (*(temp + 1) != '\n' || '\0')) {
+                            *curr_pos = '+';
+                            curr_pos++;
+                            temp++;
+                            continue;
+                        } else if (*temp == ' ') {
+                            // want to skip spaces
+                            // TODO: make spaces "delete"
+                            temp++;
+                            continue;
+                        }
+                        *curr_pos = *temp;
+                        temp++;
+                        curr_pos++;
+                    }
+
+                    *curr_pos = *temp;
+                    fputs(new_str, fout);
+                    prev = '\n';
+                    continue;
+
+                    // print the line
+                } else {
+                    // put back next chars
+                    //
+                    ungetc(next_next_char, fin);
+                    ungetc(next_char, fin);
+                }
+            } else if (curr_char == '>') {
+                // TODO: blockquote
+                // #+BEGIN_QUOTE #+END_QUOTE
+                // TODO:nested blockquotes
+                printf("blockquote\n");
             }
-        }
+
+        } // if (!in_code || !in_code_block)
         // unordered and ordered lists are the same
         // checkboxes are the same
-
-        // I need to handle multiline emphasis and combined emphasis.
-        // Global for each, If I come across an emphasis char and any is set to
-        // true, then it is the second one.
-        // TODO: bold
-        // TODO: Italics
-        // TODO: strikethroughs
-        // TODO: make this only run if it is paragraph or within a quote?
-        // NOTE: ** and __ also trigger italics, but because of the order of the
-        // if else it does not trigger
-        // TODO put this in a while loop, each step increments temp by the
-        // number of symbols to ensure all are caught.
 
         fputc(curr_char, fout);
         prev = curr_char;
@@ -239,10 +294,8 @@ void parse_file(const char *filename, const char *target_filename) {
     // TODO: links - image, url
     // TODO: parameters
     // need to parse entire line
-    // TODO: blockquote
 
     // TODO: highlight - not in org mode, so bold?
-    // TODO: tables
 
     if (curr_line) {
         free(curr_line);

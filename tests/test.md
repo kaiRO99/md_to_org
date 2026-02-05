@@ -1,3 +1,9 @@
+| table | testing | col|
+| --- | --- | --- |
+| col | col | something|
+|test| test| testing|
+
+
 testing bold **aesting** this.
 ```Python
 in codeblock

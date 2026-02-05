@@ -6,6 +6,7 @@ thoughts:
 - use target directory? - make it the same name 
 - use target file, and if it already exists, append?
 
+- tables willr requrie user to press tab on them so they auto adjust 
 
 ## Roadmap
 
