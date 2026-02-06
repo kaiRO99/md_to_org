@@ -10,6 +10,7 @@ bool in_code = false;
 bool in_bold = false;
 bool in_italic = false;
 bool in_sthrough = false;
+bool in_quote = false;
 
 /**
  * @brief
@@ -34,18 +35,18 @@ void parse_file(const char *filename, const char *target_filename) {
     // pointer for when some string concatenation is required
     char *new_str = (char *)malloc(sizeof(char) * 1024); // TODO: verify size
     char *temp;
-    /* char *original_line;*/
-    /* char *output_line; */
     int curr_char;
     int prev = '\n';
 
+    // check first char. If it is -, check next 2, if ---, we have properties
+
     while ((curr_char = fgetc(fin)) != EOF) {
-        /* char *original_line = curr_line; */
-        /* char *output_line = curr_line; */
 
         // TODO: check if temp is a blank line or eof,
         // TODO: if else on major syntax checkers
         // TODO: if in block, don't do any of this
+        // TODO: if in blockquote, no codeblock, table?
+        // TODO:
         if (curr_char == '\n') {
             // Empty line
             prev = '\n';
@@ -66,13 +67,11 @@ void parse_file(const char *filename, const char *target_filename) {
             continue;
         }
         // NOTE: Codeblock
-        // TODO: fix
         // ``` language
         // ```
         // into
         // #+BEGIN_SRC language
         // #+END_SRC
-        // need to start
         if ((curr_char == '`') && (prev == '\n' || prev == '\0')) {
             // check next 2, put in minibuffer
             char buffer[4];
@@ -276,14 +275,36 @@ void parse_file(const char *filename, const char *target_filename) {
                     ungetc(next_next_char, fin);
                     ungetc(next_char, fin);
                 }
-            } else if (curr_char == '>') {
-                // TODO: blockquote
-                // #+BEGIN_QUOTE #+END_QUOTE
-                // TODO:nested blockquotes
-                printf("blockquote\n");
+            } else if (curr_char == '>' && (prev == '\n' || prev == '\0')) {
+                // blockquote
+                // want a global in_quote - no tables, codeblock
+                // TODO: confirm prev cannot be a space or tab
+                if (!in_quote) {
+                    // we are at first >
+                    // set to #+BEGIN_QUOTE\n;
+                    char new_line[] = "#+BEGIN_QUOTE\n";
+                    in_quote = !in_quote;
+                    fputs(new_line, fout);
+                    prev = curr_char;
+                    continue;
+                } else {
+                    // skip this >
+                    prev = curr_char;
+                    continue;
+                }
+            } else if (in_quote && (curr_char != '>') &&
+                       (prev == '\n' || prev == '\0')) {
+                // TODO: print #+END_QUOTE \n
+                //  set prev to \n
+
+                char new_line[] = "#+END_QUOTE\n";
+                in_quote = !in_quote;
+                fputs(new_line, fout);
+                prev = '\n';
             }
 
         } // if (!in_code || !in_code_block)
+        // TODO add blockquote ending
         // unordered and ordered lists are the same
         // checkboxes are the same
 
@@ -293,8 +314,6 @@ void parse_file(const char *filename, const char *target_filename) {
     } // while
     // TODO: links - image, url
     // TODO: parameters
-    // need to parse entire line
-
     // TODO: highlight - not in org mode, so bold?
 
     if (curr_line) {

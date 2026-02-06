@@ -6,7 +6,7 @@ thoughts:
 - use target directory? - make it the same name 
 - use target file, and if it already exists, append?
 
-- tables willr requrie user to press tab on them so they auto adjust 
+- tables will require user to press tab on them so they auto adjust 
 
 ## Roadmap
 
@@ -17,6 +17,7 @@ thoughts:
 - [ ] Include flag to ignore properties 
 - [ ] handle *, _ that are not for emphasis
 - [ ] use threading to handle multiple files or even parsing a file
+- [ ] Handle nested blockquotes
 
 ## Bugs
 - overlapping emphaisis in .md creates issues
