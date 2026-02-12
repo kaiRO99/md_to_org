@@ -6,18 +6,23 @@ thoughts:
 - use target directory? - make it the same name 
 - use target file, and if it already exists, append?
 
-- tables will require user to press tab on them so they auto adjust 
 
 ## Roadmap
 
-- [ ] convert entire directory (dfs) - maintain structure - set destination
 - [ ] convert single file 
+- [ ] convert entire directory - maintain structure - set destination
 - [ ] convert multiple files and merge (keep name of first)
 - [ ] Include an auto-table of contents flag -t - adds a TOC "table of contents :TOC:" to the file.
 - [ ] Include flag to ignore properties 
 - [ ] handle *, _ that are not for emphasis
 - [ ] use threading to handle multiple files or even parsing a file
 - [ ] Handle nested blockquotes
+- [ ] Add Author Prop with user input.
+- [ ] add title Prop with filename ('_'->' ', capitalize, remove extension)
 
 ## Bugs
 - overlapping emphaisis in .md creates issues
+
+## Notes
+- Table of contents inserted after first H1 section as a H2
+- Tables require user to press tab to auto adjust width 

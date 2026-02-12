@@ -13,6 +13,14 @@ bool in_sthrough = false;
 bool in_quote = false;
 bool in_frontmatter = false;
 bool in_frontmatter_list = false;
+int h6_counter = 0;
+int h5_counter = 0;
+int h4_counter = 0;
+int h3_counter = 0;
+int h2_counter = 0;
+int h1_counter = 0;
+int curr_header = 0;
+int prev_header = 0;
 
 /**
  * @brief
@@ -151,7 +159,6 @@ void parse_file(const char *filename, const char *target_filename) {
         // put curr_char back and move on
         ungetc(curr_char, fin);
     }
-    // TODO: insert a table of contents section
 
     while ((curr_char = fgetc(fin)) != EOF) {
 
@@ -168,8 +175,54 @@ void parse_file(const char *filename, const char *target_filename) {
         } else if ((curr_char == '#') && (!in_code_block) &&
                    (prev == '\n' || prev == '\0')) {
             // Header
+            // TODO: add a counter to keep track of header level and when to
+            // insert TOC
             ungetc(curr_char, fin);
             fgets(curr_line, 1024, fin);
+
+            // Header level and count detection 6->1
+            if (strstr(curr_line, "#######") != NULL) {
+                // h6
+                h6_counter++;
+                prev_header = curr_header;
+                curr_header = 6;
+                //
+            } else if (strstr(curr_line, "######") != NULL) {
+                // h5
+                h5_counter++;
+                prev_header = curr_header;
+                curr_header = 5;
+            } else if (strstr(curr_line, "#####") != NULL) {
+                // h4
+                h4_counter++;
+                prev_header = curr_header;
+                curr_header = 4;
+            } else if (strstr(curr_line, "###") != NULL) {
+                // h3
+                h3_counter++;
+                prev_header = curr_header;
+                curr_header = 3;
+            } else if (strstr(curr_line, "##") != NULL) {
+                // h2
+                h2_counter++;
+                prev_header = curr_header;
+                curr_header = 2;
+            } else if (strstr(curr_line, "#") != NULL) {
+                // h1
+                h1_counter++;
+                prev_header = curr_header;
+                curr_header = 1;
+            }
+
+            if (h1_counter == 1 && prev_header == 1 && curr_header > 1) {
+                // we are at the first h2
+                // insert TOC here
+                // we want to insert this after first h1 , before first ** or
+                // before EOF somehow keep track of the header levels.
+                // TODO: insert a table of contents section
+                fputs("\n** Table of Contents :TOC:\n\n", fout);
+            }
+
             temp = curr_line;
             while (*temp == '#') {
                 *temp = '*';
@@ -197,8 +250,8 @@ void parse_file(const char *filename, const char *target_filename) {
                 buffer[i] = (char)c;
             }
 
-            // if buffer contains ''', we have a codeblock, if in_code_block is
-            // false, we are in first line, if true, we want second.
+            // if buffer contains ''', we have a codeblock, if in_code_block
+            // is false, we are in first line, if true, we want second.
 
             if (strcmp(buffer, "```") == 0) {
                 // it is a codeblock
@@ -214,8 +267,8 @@ void parse_file(const char *filename, const char *target_filename) {
                     // copy #+BEGIN_SRC
                     strncpy(curr_pos, "#+BEGIN_SRC ", 12);
                     curr_pos += 12;
-                    // ! Is there a better way to do this? no need for curr pos
-                    // or new str, strcpy directly into new line?
+                    // ! Is there a better way to do this? no need for curr
+                    // pos or new str, strcpy directly into new line?
 
                     // copy rest of string
                     strcpy(curr_pos, curr_line + 3);
@@ -258,7 +311,8 @@ void parse_file(const char *filename, const char *target_filename) {
             if (curr_char == '*' || curr_char == '_') {
                 // ensure next is the same
                 // also check if prev is space
-                // this could mess up some random * char that are not for bold
+                // this could mess up some random * char that are not for
+                // bold
                 int next_char = fgetc(fin);
                 if (next_char == curr_char) {
                     // Bold
@@ -275,8 +329,8 @@ void parse_file(const char *filename, const char *target_filename) {
                         fputc(' ', fout);
                         in_bold = !in_bold;
                     }
-                    // we have "consumed" both bold chars so we can simply move
-                    // on
+                    // we have "consumed" both bold chars so we can simply
+                    // move on
 
                     prev = next_char;
                     continue;
@@ -319,8 +373,8 @@ void parse_file(const char *filename, const char *target_filename) {
                         fputc(' ', fout);
                         in_sthrough = !in_sthrough;
                     }
-                    // we have "consumed" both bold chars so we can simply move
-                    // on
+                    // we have "consumed" both bold chars so we can simply
+                    // move on
                     prev = next_char;
                     continue;
                 } else {
@@ -349,11 +403,11 @@ void parse_file(const char *filename, const char *target_filename) {
                     // get whole line
                     fgets(curr_line, 1024, fin);
                     //
-                    // naming here is terrible, curr_pos is of new str, remp is
-                    // of curr_line
+                    // naming here is terrible, curr_pos is of new str, remp
+                    // is of curr_line
                     char *curr_pos = new_str;
-                    // here we want to iterate through curr_line, when we get to
-                    // a space, skip
+                    // here we want to iterate through curr_line, when we
+                    // get to a space, skip
                     temp = curr_line;
                     // copy first |
                     *curr_pos = *temp;
