@@ -1,3 +1,12 @@
+---
+property1: text
+list1:
+  - item
+  - item1
+  - item2
+  - item3
+prop2: C
+---
 
 > start quote
 > second line asdfasdfasdfadfadfdd

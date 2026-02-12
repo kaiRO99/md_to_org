@@ -11,12 +11,15 @@ bool in_bold = false;
 bool in_italic = false;
 bool in_sthrough = false;
 bool in_quote = false;
+bool in_frontmatter = false;
+bool in_frontmatter_list = false;
 
 /**
  * @brief
  *
  * @param
  * @return
+ * BUG: links may break
  * */
 void parse_file(const char *filename, const char *target_filename) {
     // file pointer
@@ -39,6 +42,116 @@ void parse_file(const char *filename, const char *target_filename) {
     int prev = '\n';
 
     // check first char. If it is -, check next 2, if ---, we have properties
+    curr_char = fgetc(fin);
+    if (curr_char == '-') {
+        // we need to check next 2 chars
+        int next_char = fgetc(fin);
+        int next_next_char = fgetc(fin);
+        if (next_char == '-' && next_next_char == '-') {
+            // we have yaml frontmatter
+            // BUG: A file that starts with line --- but no frontmatter may
+            // NOTE: Do I want to use :PROPERTIES: and #+keywords?- for now, use
+            // :PROPERTIES:
+            // NOTE: may want have #+ keywords for title, tags, and
+            // related
+            // NOTE: if It has a "class", add a tag for school cause
+            // TODO: make tagnames uppercase? - not case sensitive so whatever
+            in_frontmatter = !in_frontmatter;
+            // need to handle lists and likns as well
+            fputs(":PROPERTIES:\n", fout);
+
+            // discard rest of line
+            fgets(curr_line, 1024, fin);
+
+            // get each line
+            while (strstr(fgets(curr_line, 1024, fin), "---") == NULL) {
+                // we are not at end of frontmatter
+                temp = curr_line;
+                // check for a list
+                // skip all whitespace
+                // BUG: will this skip whitespace in tags?
+                while (*temp == ' ' || *temp == '\t') {
+                    prev = *temp;
+                    temp++;
+                }
+                /* if (prev == '\n') { */
+                /*     fputc(':', fout); */
+                /* } */
+
+                // temp should be at first non-space char
+                if (*temp == '-' && !in_frontmatter_list) {
+                    // first list item
+
+                    // we have a list
+                    in_frontmatter_list = !in_frontmatter_list;
+                    fseek(fout, -1,
+                          SEEK_CUR); // we want to append to previous line
+                    fputs(" :", fout);
+                    prev = ' ';
+                    temp = temp + 2; // skip space after -
+                    while (*temp != '\n') {
+                        // copy over
+                        fputc(*temp, fout);
+                        prev = *temp;
+                        temp++;
+                        continue;
+                    }
+
+                    // NOTE: may need to add : after
+                    continue;
+                } else if (*temp == '-' && in_frontmatter_list == true) {
+                    // we have a list item that is not the first
+                    fputs(":", fout);
+                    prev = ' ';
+                    temp = temp + 2; // skip space after -
+                    while (*temp != '\n') {
+                        // copy over
+                        fputc(*temp, fout);
+                        prev = *temp;
+                        temp++;
+                        continue;
+                    }
+                    continue;
+                } else if (in_frontmatter_list) {
+                    // end of list
+
+                    fputs(":\n", fout);
+                    prev = '\n';
+                    in_frontmatter_list = !in_frontmatter_list;
+                }
+
+                if (prev == '\n') {
+                    fputc(':', fout);
+                }
+                // print the rest of the line
+                while (*temp != '\n') {
+
+                    // print the char
+                    fputc(*temp, fout);
+                    prev = *temp;
+                    temp++;
+                }
+                // put new line
+
+                fputc('\n', fout);
+                prev = '\n';
+            }
+
+            // end of properties
+            fputs(":END:\n", fout);
+        } else {
+            // TODO: test this
+            // put next and next_next back
+            ungetc(next_next_char, fin);
+            ungetc(next_char, fin);
+            ungetc(curr_char, fin);
+        }
+    } else {
+        // TODO: test this case
+        // put curr_char back and move on
+        ungetc(curr_char, fin);
+    }
+    // TODO: insert a table of contents section
 
     while ((curr_char = fgetc(fin)) != EOF) {
 
