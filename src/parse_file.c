@@ -13,6 +13,9 @@ bool in_sthrough = false;
 bool in_quote = false;
 bool in_frontmatter = false;
 bool in_frontmatter_list = false;
+bool in_link_alt = false;
+bool in_link_path = false;
+bool in_link = false;
 int h6_counter = 0;
 int h5_counter = 0;
 int h4_counter = 0;
@@ -23,92 +26,87 @@ int curr_header = 0;
 int prev_header = 0;
 
 /**
- * @brief
+ * @brief Parses a mardown file and converts it to org mode.
  *
- * @param
- * @return
- * BUG: links may break
+ * @param {*char} filename Filename of markdown file to convert.
+ * @param {*char} target_filename Filename of org mode to output to.
+ *
+ * BUG: local links may break
  * */
 void parse_file(const char *filename, const char *target_filename) {
-    // file pointer
-    FILE *fin = fopen(filename, "r");
-    FILE *fout = fopen(target_filename, "w");
+
+    FILE *fin = fopen(filename, "r");         // Input file pointer
+    FILE *fout = fopen(target_filename, "w"); // Output file pointer
+
+    // File pointer validation
     if (fin == NULL) {
         printf("Error: Could not open file.\n");
         exit(EXIT_FAILURE);
-    }
+    } // if
     if (fout == NULL) {
         printf("Error: Could not open file.\n");
         exit(EXIT_FAILURE);
-    }
-    // pointer for current line it is processing
-    char *curr_line = (char *)malloc(sizeof(char) * 1024); // TODO: verify size
-    // pointer for when some string concatenation is required
-    char *new_str = (char *)malloc(sizeof(char) * 1024); // TODO: verify size
-    char *temp;
-    int curr_char;
-    int prev = '\n';
+    } // if
 
-    // check first char. If it is -, check next 2, if ---, we have properties
+    // Malloc pointers for parsing files
+    char *curr_line = (char *)malloc(sizeof(char) * 1024); // Current line
+    char *new_str = (char *)malloc(sizeof(char) * 1024);   // Temp buffer
+    char *alt_text =
+        (char *)malloc(sizeof(char) * 1024); // Temp buffer for link alt text
+    char *url =
+        (char *)malloc(sizeof(char) * 1024); // Temp buffer for link urls
+
+    // Temporary pointers and variables
+    char *temp;      // For traversing line
+    int curr_char;   // For current charachter being parsed
+    int prev = '\n'; // To keep track of previous character
+
+    // Properties
     curr_char = fgetc(fin);
     if (curr_char == '-') {
-        // we need to check next 2 chars
         int next_char = fgetc(fin);
         int next_next_char = fgetc(fin);
         if (next_char == '-' && next_next_char == '-') {
             // we have yaml frontmatter
-            // BUG: A file that starts with line --- but no frontmatter may
-            // NOTE: Do I want to use :PROPERTIES: and #+keywords?- for now, use
-            // :PROPERTIES:
-            // NOTE: may want have #+ keywords for title, tags, and
-            // related
-            // NOTE: if It has a "class", add a tag for school cause
-            // TODO: make tagnames uppercase? - not case sensitive so whatever
+            /**
+             * NOTE: Do I want to use :PROPERTIES: and #+keywords?- for now, use
+             * :PROPERTIES:
+             * NOTE: may want have #+ keywords for title, tags, and
+             * related
+             * NOTE: if It has a "class", add a tag for school cause
+             *
+             * BUG: local file links will break
+             * BUG: A file that starts with line --- but no frontmatter
+             * */
             in_frontmatter = !in_frontmatter;
-            // need to handle lists and likns as well
             fputs(":PROPERTIES:\n", fout);
+            fgets(curr_line, 1024, fin); // Discard rest of line
 
-            // discard rest of line
-            fgets(curr_line, 1024, fin);
-
-            // get each line
             while (strstr(fgets(curr_line, 1024, fin), "---") == NULL) {
-                // we are not at end of frontmatter
                 temp = curr_line;
-                // check for a list
-                // skip all whitespace
                 // BUG: will this skip whitespace in tags?
                 while (*temp == ' ' || *temp == '\t') {
                     prev = *temp;
                     temp++;
-                }
-                /* if (prev == '\n') { */
-                /*     fputc(':', fout); */
-                /* } */
-
-                // temp should be at first non-space char
+                } // while
+                // Check for a list
                 if (*temp == '-' && !in_frontmatter_list) {
-                    // first list item
-
-                    // we have a list
+                    // First item in a list
                     in_frontmatter_list = !in_frontmatter_list;
                     fseek(fout, -1,
-                          SEEK_CUR); // we want to append to previous line
+                          SEEK_CUR); // Append to previous line
                     fputs(" :", fout);
                     prev = ' ';
                     temp = temp + 2; // skip space after -
                     while (*temp != '\n') {
-                        // copy over
                         fputc(*temp, fout);
                         prev = *temp;
                         temp++;
                         continue;
-                    }
-
-                    // NOTE: may need to add : after
+                    } // while
                     continue;
                 } else if (*temp == '-' && in_frontmatter_list == true) {
-                    // we have a list item that is not the first
+                    // Not first list item
                     fputs(":", fout);
                     prev = ' ';
                     temp = temp + 2; // skip space after -
@@ -118,55 +116,49 @@ void parse_file(const char *filename, const char *target_filename) {
                         prev = *temp;
                         temp++;
                         continue;
-                    }
+                    } // while
                     continue;
                 } else if (in_frontmatter_list) {
-                    // end of list
-
+                    // End of list
                     fputs(":\n", fout);
                     prev = '\n';
                     in_frontmatter_list = !in_frontmatter_list;
-                }
+                } // else if
 
+                // Prepend : to start of each proerty name
                 if (prev == '\n') {
                     fputc(':', fout);
-                }
-                // print the rest of the line
-                while (*temp != '\n') {
+                } // if
 
-                    // print the char
+                // Copy text to output file
+                while (*temp != '\n') {
                     fputc(*temp, fout);
                     prev = *temp;
                     temp++;
-                }
-                // put new line
+                } // while
 
+                // Add new line char
                 fputc('\n', fout);
                 prev = '\n';
-            }
+            } // while
 
-            // end of properties
+            // Close Properties
             fputs(":END:\n", fout);
         } else {
             // TODO: test this
-            // put next and next_next back
+            // Put back chars if no property section
             ungetc(next_next_char, fin);
             ungetc(next_char, fin);
             ungetc(curr_char, fin);
-        }
+        } // if else
     } else {
         // TODO: test this case
-        // put curr_char back and move on
+        // No Property section
         ungetc(curr_char, fin);
-    }
+    } // if else
 
     while ((curr_char = fgetc(fin)) != EOF) {
 
-        // TODO: check if temp is a blank line or eof,
-        // TODO: if else on major syntax checkers
-        // TODO: if in block, don't do any of this
-        // TODO: if in blockquote, no codeblock, table?
-        // TODO:
         if (curr_char == '\n') {
             // Empty line
             prev = '\n';
@@ -175,8 +167,6 @@ void parse_file(const char *filename, const char *target_filename) {
         } else if ((curr_char == '#') && (!in_code_block) &&
                    (prev == '\n' || prev == '\0')) {
             // Header
-            // TODO: add a counter to keep track of header level and when to
-            // insert TOC
             ungetc(curr_char, fin);
             fgets(curr_line, 1024, fin);
 
@@ -212,54 +202,49 @@ void parse_file(const char *filename, const char *target_filename) {
                 h1_counter++;
                 prev_header = curr_header;
                 curr_header = 1;
-            }
+            } // else if
 
             if (h1_counter == 1 && prev_header == 1 && curr_header > 1) {
-                // we are at the first h2
-                // insert TOC here
-                // we want to insert this after first h1 , before first ** or
-                // before EOF somehow keep track of the header levels.
-                // TODO: insert a table of contents section
+                // End of first H1
+                // Insert TOC
                 fputs("\n** Table of Contents :TOC:\n\n", fout);
-            }
+            } // if
 
+            // Change #->*
             temp = curr_line;
             while (*temp == '#') {
                 *temp = '*';
                 (temp)++;
-            }
+            } // while
             fputs(curr_line, fout);
             prev = '\n';
             continue;
-        }
-        // NOTE: Codeblock
-        // ``` language
-        // ```
-        // into
-        // #+BEGIN_SRC language
-        // #+END_SRC
+        } // else if
+        /**
+         * Codeblock
+         * ``` language -> #+BEGIN_SRC language
+         * ``` -> #+END_SRC
+         **/
         if ((curr_char == '`') && (prev == '\n' || prev == '\0')) {
-            // check next 2, put in minibuffer
             char buffer[4];
             buffer[0] = (char)curr_char;
             for (int i = 1; i < 3; i++) {
                 int c = fgetc(fin);
                 if (c == EOF) {
                     break;
-                }
+                } // if
                 buffer[i] = (char)c;
-            }
+            } // for
 
-            // if buffer contains ''', we have a codeblock, if in_code_block
-            // is false, we are in first line, if true, we want second.
-
+            /* if buffer contains ''', we have a codeblock, if in_code_block
+             * is false, we are in first line, if true, we want second.
+             */
             if (strcmp(buffer, "```") == 0) {
-                // it is a codeblock
-                // put the buffer back
+                // Put the buffer back
                 for (int i = 2; i >= 0; i--) {
                     ungetc(buffer[i], fin);
                 }
-                // then get the full line and process
+                // Get the full line and process
                 fgets(curr_line, 1024, fin);
                 if (in_code_block == false) {
 
@@ -267,52 +252,73 @@ void parse_file(const char *filename, const char *target_filename) {
                     // copy #+BEGIN_SRC
                     strncpy(curr_pos, "#+BEGIN_SRC ", 12);
                     curr_pos += 12;
-                    // ! Is there a better way to do this? no need for curr
+                    // NOTE: Is there a better way to do this? no need for curr
                     // pos or new str, strcpy directly into new line?
 
-                    // copy rest of string
                     strcpy(curr_pos, curr_line + 3);
-                    // set curr_line to new str
                     strcpy(curr_line, new_str);
                     in_code_block = true;
-
                     fputs(curr_line, fout);
                     prev = '\n';
                     continue;
                 } else {
-                    // we are at end of block
-                    // need to also print the \n
+                    // End of block
                     char new_line[] = "#+END_SRC\n";
                     strcpy(curr_line, new_line);
                     in_code_block = false;
                     fputs(curr_line, fout);
                     prev = '\n';
                     continue;
-                }
-            }
+                } // if else
+            } // if
         } else if (curr_char == '`') {
-            // we have a normal code?
-            // want a single ~
-            // When in this, we don't want to use the other rules
+            // Normal code ` -> ~, other emphasis does not apply
             in_code = !in_code;
-
             fputc('~', fout);
             prev = '~';
             continue;
-        }
-        if (!in_code || !in_code_block) {
-            // check for emphasis
-            // bold
-            // Italics
-            // strikethroughs
-            // make this only run if it is paragraph or within a quote?
+        } // else if
 
-            //  if * or _ we need to check the next too
+        if (!in_code || !in_code_block) {
+            // Bold, Italics, Strikethrough, Links, Table, Blockquote
+
+            if (in_link && in_link_alt) {
+                // In a Link alt text
+                if (curr_char == ']') {
+                    // End of Alt text
+                    in_link_alt = !in_link_alt;
+                    prev = curr_char;
+                    continue;
+                } // if
+                // Copy alt text to buffer
+                *temp = curr_char;
+                temp++;
+                prev = curr_char;
+                continue;
+
+            } else if (in_link && in_link_path) {
+                // in Link URL
+                if (curr_char == ')' && in_link) {
+                    in_link_path = !in_link_path;
+                    in_link = !in_link;
+                    // print the alt and url
+                    fprintf(fout, "[[%s][%s]]", url, alt_text);
+                    prev = curr_char;
+                    memset(url, 0, strlen(url));
+                    memset(alt_text, 0, strlen(alt_text));
+                    continue;
+                } // if
+                // Copy char to url
+                *temp = curr_char;
+                temp++;
+                prev = curr_char;
+                continue;
+            } // else if
+            //  if * or _
             if (curr_char == '*' || curr_char == '_') {
                 // ensure next is the same
                 // also check if prev is space
-                // this could mess up some random * char that are not for
-                // bold
+                // NOTE: could mess up some random * that are not for bold
                 int next_char = fgetc(fin);
                 if (next_char == curr_char) {
                     // Bold
@@ -328,16 +334,11 @@ void parse_file(const char *filename, const char *target_filename) {
                         fputc('*', fout);
                         fputc(' ', fout);
                         in_bold = !in_bold;
-                    }
-                    // we have "consumed" both bold chars so we can simply
-                    // move on
-
+                    } // else if
                     prev = next_char;
                     continue;
                 } else {
                     // Italics
-                    // put back next_char
-
                     ungetc(next_char, fin);
                     if ((prev != ' ' || prev != '\n' || prev != '\t' ||
                          prev != '\0' || prev != '\f') &&
@@ -350,20 +351,17 @@ void parse_file(const char *filename, const char *target_filename) {
                         fputc('/', fout);
                         fputc(' ', fout);
                         in_italic = !in_italic;
-                    }
+                    } // if else
                     prev = curr_char;
                     continue;
-                }
+                } // if else
             } else if (curr_char == '~') {
-                // check second char
-
+                // Strikethrough
                 int next_char = fgetc(fin);
                 if (next_char == curr_char) {
-                    // strikethrough
                     if ((prev != ' ' || prev != '\n' || prev != '\t' ||
                          prev != '\0' || prev != '\f') &&
                         !in_sthrough) {
-                        // we want space followed by +
                         fputc(' ', fout);
                         fputc('+', fout);
                         in_sthrough = !in_sthrough;
@@ -372,42 +370,29 @@ void parse_file(const char *filename, const char *target_filename) {
                         fputc('+', fout);
                         fputc(' ', fout);
                         in_sthrough = !in_sthrough;
-                    }
-                    // we have "consumed" both bold chars so we can simply
-                    // move on
+                    } // else if
                     prev = next_char;
                     continue;
                 } else {
                     // Italics
-                    // put back next_char
-
                     ungetc(next_char, fin);
                     fputc(curr_char, fout);
                     prev = curr_char;
                     continue; // go to next char
-                }
+                } // if else
             } else if (curr_char == '|') {
-                // TODO: tables
+                // Tables
                 int next_char = fgetc(fin);
                 int next_next_char = fgetc(fin);
 
                 if ((next_char == ' ' && next_next_char == '-') ||
                     (next_char == '-')) {
-                    // we are in a table separator
-                    // we want to replce all | except bookends with +
-                    // put chars back
+                    // Replace all | with +, except bookends
                     ungetc(next_next_char, fin);
                     ungetc(next_char, fin);
                     ungetc(curr_char, fin);
-
-                    // get whole line
                     fgets(curr_line, 1024, fin);
-                    //
-                    // naming here is terrible, curr_pos is of new str, remp
-                    // is of curr_line
                     char *curr_pos = new_str;
-                    // here we want to iterate through curr_line, when we
-                    // get to a space, skip
                     temp = curr_line;
                     // copy first |
                     *curr_pos = *temp;
@@ -420,78 +405,85 @@ void parse_file(const char *filename, const char *target_filename) {
                             temp++;
                             continue;
                         } else if (*temp == ' ') {
-                            // want to skip spaces
-                            // TODO: make spaces "delete"
                             temp++;
                             continue;
-                        }
+                        } // else if
                         *curr_pos = *temp;
                         temp++;
                         curr_pos++;
-                    }
-
+                    } // while
                     *curr_pos = *temp;
                     fputs(new_str, fout);
                     prev = '\n';
                     continue;
-
-                    // print the line
                 } else {
-                    // put back next chars
-                    //
                     ungetc(next_next_char, fin);
                     ungetc(next_char, fin);
-                }
+                } // if else
             } else if (curr_char == '>' && (prev == '\n' || prev == '\0')) {
-                // blockquote
-                // want a global in_quote - no tables, codeblock
+                // Blockquote
                 // TODO: confirm prev cannot be a space or tab
                 if (!in_quote) {
-                    // we are at first >
-                    // set to #+BEGIN_QUOTE\n;
+                    // First >
                     char new_line[] = "#+BEGIN_QUOTE\n";
                     in_quote = !in_quote;
                     fputs(new_line, fout);
                     prev = curr_char;
                     continue;
                 } else {
-                    // skip this >
+                    // Skip the >
                     prev = curr_char;
                     continue;
-                }
+                } // if else
             } else if (in_quote && (curr_char != '>') &&
                        (prev == '\n' || prev == '\0')) {
-                // TODO: print #+END_QUOTE \n
-                //  set prev to \n
-
                 char new_line[] = "#+END_QUOTE\n";
                 in_quote = !in_quote;
                 fputs(new_line, fout);
                 prev = '\n';
-            }
-
+            } else if (curr_char == '[') {
+                // org mode: [[link][descrptiom]] [[path to local image]]
+                // md: [description](link) ![alt text](image path)
+                // look for .jpeg, .jpg ,.png, .gif, .webp, .svg,..tif,.tiff ?
+                // TODO: test images
+                if (prev == '!') {
+                    // Image link
+                    fseek(fout, -1, SEEK_CUR);
+                } // if
+                // File/image link alt text
+                in_link_alt = !in_link_alt;
+                in_link = !in_link;
+                prev = curr_char;
+                temp = alt_text;
+                continue;
+            } else if (curr_char == '(' && in_link && !in_link_alt) {
+                // we have a url
+                in_link_path = !in_link_path;
+                prev = curr_char;
+                temp = url;
+                continue;
+            } // if else
         } // if (!in_code || !in_code_block)
-        // TODO add blockquote ending
-        // unordered and ordered lists are the same
-        // checkboxes are the same
 
         fputc(curr_char, fout);
         prev = curr_char;
-        // print curr char, set prev to curr
-    } // while
-    // TODO: links - image, url
-    // TODO: parameters
-    // TODO: highlight - not in org mode, so bold?
+    } // while curr_char !=EOF
 
     if (curr_line) {
         free(curr_line);
-    }
+    } // if curr_line
     if (new_str) {
         free(new_str);
-    }
+    } // if new_str
+    if (url) {
+        free(url);
+    } // if url
+    if (alt_text) {
+        free(alt_text);
+    } // if alt_text
     fclose(fout);
     fclose(fin);
-}
+} // parse_file
 
 /**
  * @brief Shifts everything after str back by 1

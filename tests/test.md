@@ -4,10 +4,14 @@ list1:
   - item
   - item1
   - item2
-  - item3
+  - item3 
 prop2: C
 ---
 # header1
+
+text [kai](https://kairyalota.ca)
+
+text ![image](imagepath)
 
 text here 
 blah blah blah
