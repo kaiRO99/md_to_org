@@ -2,17 +2,18 @@
  * Tests for parse_line.c
  * Cases:
  * - Links
- * - TODO: Bold
+ * - Bold
  * - Italics
- * - TODO: Inline code
- * - TODO: Table separator
- * - TODO: Strikethrough
+ * - Inline code
+ * - Table separator
+ * - Strikethrough
  * - TODO: All
  *
  * @author Kai Ryall Ota
  * */
 #include "../include/parse_line.h"
 #include "unity.h"
+#include "unity_internals.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -226,6 +227,27 @@ void test_sthrough(void) {
 } // test_sthrough
 
 /**
+ * Test all in a line
+ * cases:
+ * - Valid, separated: old, italic, code, strikethrough,
+ * - TODO: Valid: nested emphasis
+ * */
+void test_all(void) {
+    char *result;
+
+    // Valid case 1
+    char *valid_input_c1 =
+        "text **bold text** text *italic text* text `code code` text ~sthrough "
+        "text~ text [link alt](link url) text";
+    result = parse_line(valid_input_c1);
+    TEST_ASSERT_EQUAL_STRING(
+        "text *bold text* text /italic text/ text ~code code~ text +sthrough "
+        "text+ text [[link alt][link url]] text",
+        result);
+    free(result);
+}
+
+/**
  * Test for mixed
  * */
 int main(void) {
@@ -237,6 +259,7 @@ int main(void) {
     RUN_TEST(test_italic);
     RUN_TEST(test_table);
     RUN_TEST(test_sthrough);
+    RUN_TEST(test_all);
 
     return UNITY_END();
 }
