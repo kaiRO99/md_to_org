@@ -1,5 +1,6 @@
 #include "starts_with.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 /**
@@ -20,6 +21,5 @@ bool starts_with(char *line, char key[]) {
     while (*temp == ' ' || *temp == '\t') {
         temp++;
     }
-
     return strncmp(key, temp, strlen(key));
 }

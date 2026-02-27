@@ -1,21 +1,35 @@
+| --- + --- |
+
+| ------ + ----- + ----- |
+
+| :---- + --------------- + ------------ |
+
+| -- | -- | -- |
+
+| -- | --- | --- |
+
+Line 0 +strikethrough+ text
+Line 1 ~code here~ text
+Line 2 *bold* text
+
 :PROPERTIES:
 :property1: text
-:list1: :item:item1:item2:item3 :
+:list1:  :item  :item1  :item2  :item3 :
 :prop2: C
 :END:
 * header1
 
-text [[https://kairyalota.ca][kai]]
+text [[kai][https://kairyalota.ca]]
 
-text [[imagepath][image]]
+text [[image][imagepath]]
 
 text here 
 blah blah blah
 
+*** Header3
+
 
 ** Table of Contents :TOC:
-
-*** Header3
 
 ** H2
 
@@ -28,51 +42,59 @@ not in quote
 
 
 
+
+
 | table | testing | col|
-|---+---+---|
+| --- + --- + --- |
 | col | col | something|
 |test| test| testing|
 
 
-testing bold  *aesting*  this.
-#+BEGIN_SRC Python
+testing bold *aesting* this.
+#+BEGIN_SRCPython
 in codeblock
 #+END_SRC
-teste doubles  * /bolded italic* / 
-test doubles  * /bolded italic* / 
-test mixes  / *italicised bold* / 
-test mixes w/extra  /italicized *bold* / 
+teste doubles **bolded italic**
+test doubles _*bolded italic*_
+test mixes /**italicised bold**/
+test mixes w/extra /italicized__bold__/
 code test ~code~ here is more text.
 
- *bold* 
- *bold* 
+*bold*
+*bold*
 
- /italics/ 
- /italics/ 
+/italics/
+/italics/
 
- +strikethrough+ 
+~+strikethrough+~
 
-testing wihttithin text *bold*  with text after
-testing wihttithin text *bold*  with text after
+testing wihttithin text*bold* with text after
+testing wihttithin text*bold* with text after
 
-testing wihttithin text /italics/  with text after
-testing wihttithin text /italics/  with text after
+testing wihttithin text/italics/ with text after
+testing wihttithin text/italics/ with text after
 
-testing wihttithin text +strikethrough+  with text after
+testing wihttithin text~+strikethrough+~ with text after
 
 * TEST
 
 testing 
 
+
+** Table of Contents :TOC:
+
 ** testing h2
 
 text 
 
-#+BEGIN_SRC  python
+#+BEGIN_SRC python
 Here is a code block
 #+END_SRC
 
- /test */ test* 
+/test/*test*
+
+
+** Table of Contents :TOC:
 
 ** lists
 
@@ -84,11 +106,11 @@ ordered
    - nested unord
    
 + unordered
- / unordered
+* unordered
 - unordered
   + nested
   - nested
-  /  nested
+  * nested
   1. nested
   2. nested
 

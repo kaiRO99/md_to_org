@@ -22,9 +22,9 @@ void parse_file(const char *filename, const char *target_filename) {
 
     FILE *fin = fopen(filename, "r");         // Input file pointer
     FILE *fout = fopen(target_filename, "w"); // Output file pointer
-
+    char *result;
     // States
-    HeaderState header_state = H0;
+    /* HeaderState header_state = H0; */
     SectionState prop_state = MISSING;
     SectionState toc_state = MISSING;
     SubState curr_sub_state = NONE;
@@ -46,7 +46,7 @@ void parse_file(const char *filename, const char *target_filename) {
         if (curr_state == DEFAULT) {
             //
             if (prop_state == MISSING) {
-                if (starts_with(curr_line, "---")) {
+                if (starts_with(curr_line, "---") == 0) {
                     // Properties
                     curr_state = PROPERTIES;
                     fputs(":PROPERTIES:\n", fout);
@@ -54,22 +54,23 @@ void parse_file(const char *filename, const char *target_filename) {
                 } // if
             } // if
 
-            if (starts_with(curr_line, "```")) {
+            if (starts_with(curr_line, "```") == 0) {
                 // Code block
 
                 curr_state = CODE_BLOCK;
                 char *new_line =
                     replace_substring(curr_line, "```", "#+BEGIN_SRC");
                 fputs(new_line, fout);
+                free(new_line);
                 continue;
 
             } // if
 
-            if (starts_with(curr_line, "#")) {
+            if (starts_with(curr_line, "#") == 0) {
                 // Header
                 char *pos = curr_line;
                 int counter = 0;
-                while (pos == '#') {
+                while (*pos == '#') {
                     *pos = '*';
                     (pos)++;
                     counter++;
@@ -85,7 +86,7 @@ void parse_file(const char *filename, const char *target_filename) {
                 continue;
             } // if
 
-            if (starts_with(curr_line, ">")) {
+            if (starts_with(curr_line, ">") == 0) {
                 // Quote
                 curr_state = QUOTE;
                 fputs("#+BEGIN_QUOTE\n", fout);
@@ -94,22 +95,29 @@ void parse_file(const char *filename, const char *target_filename) {
                 char *new_line = replace_substring(curr_line, ">", "");
 
                 // NOTE: rather than replace, move curr line to > +1?
-                parse_line(new_line, fout);
+                result = parse_line(new_line);
+                fputs(result, fout);
+                free(new_line);
+                free(result);
+                result = NULL;
                 continue;
             } //
-            parse_line(new_line, fout);
+            result = parse_line(curr_line);
+            fputs(result, fout);
+            free(result);
+            result = NULL;
             continue;
 
         } else if (curr_state == PROPERTIES) {
             // Properties
-            if (starts_with(curr_line, "---")) {
+            if (starts_with(curr_line, "---") == 0) {
                 // End of properties
                 curr_state = DEFAULT;
                 fputs(":END:\n", fout);
                 prop_state = DONE;
                 continue;
             } // if
-            if (starts_with(curr_line, "- ")) {
+            if (starts_with(curr_line, "- ") == 0) {
                 // In list
                 if (curr_sub_state != PROP_LIST) {
                     // First property list item
@@ -120,6 +128,7 @@ void parse_file(const char *filename, const char *target_filename) {
                 fseek(fout, -1, SEEK_CUR);
                 char *new_line = replace_substring(curr_line, "- ", ":");
                 fputs(new_line, fout);
+                free(new_line);
                 continue;
             } else if (curr_sub_state == PROP_LIST) {
                 // End of list
@@ -134,34 +143,46 @@ void parse_file(const char *filename, const char *target_filename) {
             fputs(curr_line, fout);
             continue;
         } else if (curr_state == CODE_BLOCK) {
-            if (starts_with(curr_line, "```")) {
+            if (starts_with(curr_line, "```") == 0) {
                 // End of code block
                 curr_state = DEFAULT;
                 char *new_line =
                     replace_substring(curr_line, "```", "#+END_SRC");
                 fputs(new_line, fout);
+                free(new_line);
                 continue;
             } // if
               // In code block
             fputs(curr_line, fout);
             continue;
         } else if (curr_state == QUOTE) {
-            if (starts_with(curr_line, ">")) {
+            if (starts_with(curr_line, ">") == 0) {
                 char *new_line = replace_substring(curr_line, ">", "");
 
                 // NOTE: rather than replace, move curr line to > +1?
-                parse_line(new_line, fout);
+                result = parse_line(new_line);
+                fputs(result, fout);
+                free(result);
+                free(new_line);
+                result = NULL;
                 continue;
             } else {
                 // End of blockquote
                 curr_state = DEFAULT;
                 fputs("#+END_QUOTE\n", fout);
 
-                parse_line(new_line, fout);
+                result = parse_line(curr_line);
+                fputs(result, fout);
+                free(result);
+                result = NULL;
                 continue;
             } // if else
         } // else if
     } // while
+
+    if (curr_line) {
+        free(curr_line);
+    }
 } // parse_file
 
 /**

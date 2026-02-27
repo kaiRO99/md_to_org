@@ -1,3 +1,17 @@
+| --- | --- |
+
+| ------ | ----- | ----- |
+
+| :---- | --------------- | ------------ |
+
+| -- | -- | -- |
+
+| -- | --- | --- |
+
+Line 0 ~strikethrough~ text
+Line 1 `code here` text
+Line 2 **bold** text
+
 ---
 property1: text
 list1:
@@ -24,6 +38,8 @@ blah blah
 > start quote
 > second line asdfasdfasdfadfadfdd
 not in quote 
+
+
 
 
 

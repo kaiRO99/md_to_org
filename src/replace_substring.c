@@ -1,10 +1,14 @@
+
+// Enable POSIX function
+#define _POSIX_C_SOURCE 200809L
+
 #include "replace_substring.h"
 #include <stdlib.h>
 #include <string.h>
 
 /**
  * @brief Replaces first instance of a substring with another substring.
- *
+
  * @param {char*} src Original string to parse and edit.
  * @param {char*} old_substring Substring to find and replace.
  * @param {char*} new_substring Substring to insert.
@@ -34,5 +38,5 @@ char *replace_substring(const char *src, const char *old_substring,
     memcpy(edited + pre_len, new_substring, new_len);
     memcpy(edited + pre_len + new_len, pos + old_len, post_len + 1);
 
-    return edited
-        }
+    return edited;
+}
