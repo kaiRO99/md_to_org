@@ -1,24 +1,32 @@
+/**
+ * @file parse_file.c
+ * @brief Parses markdown file line by line and converts to Org-mode.
+ * @author Kai Ryall Ota
+ * @date Feb 2026
+ * */
 #include "parse_file.h"
-#include <stdbool.h>
-#include <string.h>
-/* #include <stddef.h> */
 #include "parse_line.h"
 #include "replace_substring.h"
 #include "starts_with.h"
 #include "states.h"
+#include "truncate.h"
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 /**
- * @brief Parses a mardown file and converts it to org mode.
+ * @brief Parses a mardown file and converts it to Org mode.
  *
  * @param {*char} filename Filename of markdown file to convert.
  * @param {*char} target_filename Filename of org mode to output to.
- *
- * BUG: local links may break
- * */
-
-void parse_file(const char *filename, const char *target_filename) {
+ * @return{int} Status of completion
+ *            { 0:success,
+ *              1:error opening source,
+ *              2:error opening target
+ *              }
+ **/
+int parse_file(const char *filename, const char *target_filename) {
 
     FILE *fin = fopen(filename, "r");         // Input file pointer
     FILE *fout = fopen(target_filename, "w"); // Output file pointer
@@ -33,11 +41,11 @@ void parse_file(const char *filename, const char *target_filename) {
     // File pointer validation
     if (fin == NULL) {
         printf("Error: Could not open file.\n");
-        exit(EXIT_FAILURE);
+        return 1;
     } // if
     if (fout == NULL) {
         printf("Error: Could not open file.\n");
-        exit(EXIT_FAILURE);
+        return 2;
     } // if
 
     char *curr_line = (char *)malloc(sizeof(char) * 1024); // Current line
@@ -80,6 +88,7 @@ void parse_file(const char *filename, const char *target_filename) {
                 if (toc_state == MISSING && counter == 2) {
                     // Insert table of contents before first H2
                     fputs("\n** Table of Contents :TOC:\n\n", fout);
+                    toc_state = DONE;
                 } // if
 
                 fputs(curr_line, fout);
@@ -101,7 +110,7 @@ void parse_file(const char *filename, const char *target_filename) {
                 free(result);
                 result = NULL;
                 continue;
-            } //
+            } // if
             result = parse_line(curr_line);
             fputs(result, fout);
             free(result);
@@ -119,15 +128,16 @@ void parse_file(const char *filename, const char *target_filename) {
             } // if
             if (starts_with(curr_line, "- ") == 0) {
                 // In list
+                fseek(fout, -1, SEEK_CUR);
                 if (curr_sub_state != PROP_LIST) {
                     // First property list item
                     curr_sub_state = PROP_LIST;
+                    fputc(' ', fout); // for padding
                 } // if
                 // Not first property list item
-                /* fputc(':', fout); */
-                fseek(fout, -1, SEEK_CUR);
                 char *new_line = replace_substring(curr_line, "- ", ":");
-                fputs(new_line, fout);
+                char *list_item = truncate(new_line);
+                fputs(list_item, fout);
                 free(new_line);
                 continue;
             } else if (curr_sub_state == PROP_LIST) {
@@ -152,7 +162,7 @@ void parse_file(const char *filename, const char *target_filename) {
                 free(new_line);
                 continue;
             } // if
-              // In code block
+            // In code block
             fputs(curr_line, fout);
             continue;
         } else if (curr_state == QUOTE) {
@@ -183,9 +193,7 @@ void parse_file(const char *filename, const char *target_filename) {
     if (curr_line) {
         free(curr_line);
     }
+    fclose(fin);
+    fclose(fout);
+    return 0;
 } // parse_file
-
-/**
- * @brief Shifts everything after str back by 1
- * */
-void delete_char(char *str) { memmove(str, str + 1, strlen(str)); }

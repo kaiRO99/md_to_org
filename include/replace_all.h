@@ -1,3 +1,9 @@
+/**
+ * @file replace_all.h
+ * @brief Replaces all isntances of a substring with another.
+ * @author Kai Ryall Ota
+ * @date Feb 2026
+ * */
 #ifndef REPLACE_ALL_H_
 #define REPLACE_ALL_H_
 /**

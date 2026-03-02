@@ -1,3 +1,9 @@
+/**
+ * @file replace_all.c
+ * @brief Replaces all instances of a substring with another.
+ * @author Kai Ryall Ota
+ * @date Feb 2026
+ * */
 #define _POSIX_C_SOURCE 200809L
 #include "replace_all.h"
 #include <stdlib.h>
@@ -61,5 +67,7 @@ char *replace_all(const char *src, const char *old_str, const char *new_str) {
             break;
         }
     }
+    strcpy(replaced, temp);
+
     return result;
 } // replace_all

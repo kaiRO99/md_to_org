@@ -1,0 +1,34 @@
+
+code block
+
+#+BEGIN_SRC C
+int test(){
+    int test_snake_case = 1;
+    char[] = "test **bold** test"
+    return test_snake_case;
+}
+#+END_SRC
+
+text
+
+#+BEGIN_SRC Python
+def test():
+    print("Hello world!")
+#+END_SRC
+
+blockquote
+
+text
+
+#+BEGIN_QUOTE
+ quote
+ quote
+ quote
+#+END_QUOTE
+
+text
+#+BEGIN_QUOTE
+     quote
+     quote
+#+END_QUOTE
+text

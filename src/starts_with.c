@@ -1,6 +1,11 @@
+/**
+ * @file starts_with.c
+ * @brief Checks if string starts with a defined string.
+ * @author Kai Ryall Ota
+ * @date Feb 2026
+ * */
 #include "starts_with.h"
 #include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
 
 /**
@@ -11,8 +16,6 @@
  *
  * @returns {bool}
  * */
-
-// TODO: const args?
 bool starts_with(char *line, char key[]) {
     char *temp;
     temp = line;

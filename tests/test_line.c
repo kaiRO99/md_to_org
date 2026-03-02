@@ -1,15 +1,17 @@
 /**
- * Tests for parse_line.c
- * Cases:
- * - Links
- * - Bold
- * - Italics
- * - Inline code
- * - Table separator
- * - Strikethrough
- * - TODO: All
- *
+ * @file test_line.c
+ * @brief Tests for line conversion from markdown to Org-mode.
  * @author Kai Ryall Ota
+ * @date Feb 2026
+ *
+ * @note Tests:
+ *       - Links
+ *       - Bold
+ *       - Italics
+ *       - Inline code
+ *       - Table separator
+ *       - Strikethrough
+ *       - All in a line except table separator
  * */
 #include "../include/parse_line.h"
 #include "unity.h"
@@ -17,21 +19,29 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @brief Setup before each test
+ * */
 void setUp(void) {
     // Setup before each test
 }
 
+/**
+ * @brief Cleanup after each test
+ * */
 void tearDown(void) {
     // Cleanup after each test
 }
 
 /**
- * Test for links
- * cases:
- * - Valid url link
- * - Valid image link
- * - Invalid url link
- * - Invalid image link
+ * @brief Test for links.
+ * @note Tests:
+ *       - Valid url link
+ *       - Valid image link
+ *       - Invalid url link
+ *       - Invalid image link
+ *
+ * @see parse_line()
  * */
 void test_link(void) {
     char *result;
@@ -39,13 +49,13 @@ void test_link(void) {
     // Valid case 1
     char *valid_input_c1 = "words [alt text](url) text";
     result = parse_line(valid_input_c1);
-    TEST_ASSERT_EQUAL_STRING("words [[alt text][url]] text", result);
+    TEST_ASSERT_EQUAL_STRING("words [[url][alt text]] text", result);
     free(result);
 
     // Valid case 2
     char *valid_input_c2 = "words ![alt text](imagepath) text";
     result = parse_line(valid_input_c2);
-    TEST_ASSERT_EQUAL_STRING("words [[alt text][imagepath]] text", result);
+    TEST_ASSERT_EQUAL_STRING("words [[imagepath][alt text]] text", result);
     free(result);
 
     // Invalid: should not change
@@ -59,15 +69,16 @@ void test_link(void) {
     result = parse_line(invalid_input_c2);
     TEST_ASSERT_EQUAL_STRING(invalid_input_c2, result);
     free(result);
-} // test_link
+} // test_link()
 
 /**
- * Test for bold
- * cases:
- * - Valid: **text**
- * - Valid: __text__
- * - Valid: text**text**text
- * - Invalid
+ * @brief Test for bold
+ * @note Tests:
+ *       - Valid: **text**
+ *       - Valid: __text__
+ *       - Valid: text**text**text
+ *       - Invalid
+ * @see parse_line()
  * */
 void test_bold(void) {
     char *result;
@@ -94,17 +105,17 @@ void test_bold(void) {
     result = parse_line(invalid_input_c1);
     TEST_ASSERT_EQUAL_STRING(invalid_input_c1, result);
     free(result);
-} // test_bold
+} // test_bold()
 
 /**
- * Test for italic
- * cases:
- * - Valid: *text*
- * - Valid: _text_
- * - Invalid
+ * @brief Test for italic
+ * @note Tests:
+ *       - Valid: *text*
+ *       - Valid: _text_
+ *       - Invalid
+ * @see parse_line()
  * */
 void test_italic(void) {
-    //
     char *result;
 
     // Valid case 1
@@ -125,17 +136,17 @@ void test_italic(void) {
     TEST_ASSERT_EQUAL_STRING(invalid_input_c1, result);
     free(result);
 
-} // test_italic
+} // test_italic()
 
 /**
- * Test for inline code
- * cases:
- * - Valid
- * - Valid w/ emphasis: `text*text*`
- * - Invalid
+ * @brief Test for inline code
+ * @note Tests:
+ *       - Valid
+ *       - Valid w/ emphasis: `text*text*`
+ *       - Invalid
+ * @see parse_line()
  * */
 void test_code(void) {
-    //
     char *result;
 
     // Valid case 1
@@ -156,19 +167,19 @@ void test_code(void) {
     TEST_ASSERT_EQUAL_STRING(invalid_input_c1, result);
     free(result);
 
-} // test_code
+} // test_code()
 
 /**
- * Test for table separator
- * cases:
- * - Valid: | --- | --- |
- * - Valid w/ alignment: | :--- |
- * - Valid w/ alignment: | :---: |
- * - valid: | ------- | -------- |
- * - Invalid: | -- | -- |
- * -  */
+ * @brief Test for table separator
+ * @note Tests:
+ *       - Valid: | --- | --- |
+ *       - Valid w/ alignment: | :--- |
+ *       - Valid w/ alignment: | :---: |
+ *       - valid: | ------- | -------- |
+ *       - Invalid: | -- | -- |
+ * @see parse_line()
+ * */
 void test_table(void) {
-    //
     char *result;
 
     // Valid case 1
@@ -178,21 +189,27 @@ void test_table(void) {
     free(result);
 
     // Valid case 2
-    char *valid_input_c2 = "| :--- | ---: |";
+    char *valid_input_c2 = "| :--- | ---: | --- |";
     result = parse_line(valid_input_c2);
-    TEST_ASSERT_EQUAL_STRING("| :--- + ---: |", result);
+    TEST_ASSERT_EQUAL_STRING("|  --- + ---  + --- |", result);
     free(result);
 
     // Valid case 3
     char *valid_input_c3 = "| :---: | :---: |";
     result = parse_line(valid_input_c3);
-    TEST_ASSERT_EQUAL_STRING("| :---: + :---: |", result);
+    TEST_ASSERT_EQUAL_STRING("|  ---  +  ---  |", result);
     free(result);
 
     // Valid case 4
     char *valid_input_c4 = "| ------- | ------- |";
     result = parse_line(valid_input_c4);
     TEST_ASSERT_EQUAL_STRING("| ------- + ------- |", result);
+    free(result);
+
+    // Valid case 5
+    char *valid_input_c5 = "|-------|-------|";
+    result = parse_line(valid_input_c5);
+    TEST_ASSERT_EQUAL_STRING("|-------+-------|", result);
     free(result);
 
     // Invalid: should not change
@@ -203,13 +220,13 @@ void test_table(void) {
 } // test_table
 
 /**
- * Test for strikethrough
- * cases:
- * - valid: ~text~
- * - invalid: ~text
+ * @brief Test for strikethrough
+ * @note Tests:
+ *       - valid: ~text~
+ *       - invalid: ~text
+ * @see parse_line()
  * */
 void test_sthrough(void) {
-    //
     char *result;
 
     // Valid case 1
@@ -227,10 +244,11 @@ void test_sthrough(void) {
 } // test_sthrough
 
 /**
- * Test all in a line
- * cases:
- * - Valid, separated: old, italic, code, strikethrough,
- * - TODO: Valid: nested emphasis
+ * @brief Test all in a line
+ * @note Tests:
+ *       - Valid, separated: old, italic, code, strikethrough,
+ *       - TODO: Valid: nested emphasis
+ * @see parse_line()
  * */
 void test_all(void) {
     char *result;
@@ -242,14 +260,11 @@ void test_all(void) {
     result = parse_line(valid_input_c1);
     TEST_ASSERT_EQUAL_STRING(
         "text *bold text* text /italic text/ text ~code code~ text +sthrough "
-        "text+ text [[link alt][link url]] text",
+        "text+ text [[link url][link alt]] text",
         result);
     free(result);
 }
 
-/**
- * Test for mixed
- * */
 int main(void) {
     UNITY_BEGIN();
 
@@ -262,4 +277,4 @@ int main(void) {
     RUN_TEST(test_all);
 
     return UNITY_END();
-}
+} // main()

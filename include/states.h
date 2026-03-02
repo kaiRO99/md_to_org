@@ -1,10 +1,15 @@
+/**
+ * @file states.h
+ * @brief States to keep track of multiline markdown syntax.
+ * @author Kai Ryall Ota
+ * @date Feb 2026
+ * */
 #ifndef STATES_H_
 #define STATES_H_
 
-/*
-** General states
-** Used to track what emphasis/syntax is available
-*/
+/**
+ * @brief General states to track what syntax is available
+ * */
 typedef enum {
     DEFAULT,
     PROPERTIES,
@@ -12,10 +17,9 @@ typedef enum {
     QUOTE,
 } State;
 
-/*
-** Sub states
-** Used to track states within the general state
-*/
+/**
+ * @brief Sub states to track states within the general states
+ * */
 typedef enum {
     NONE,
     PROP_LIST,
@@ -26,19 +30,17 @@ typedef enum {
     TABLE,
 } SubState;
 
-/*
-** Section states
-** Used to track if a section has been inserted
-*/
+/**
+ * @brief Section states to track if a section has been inserted
+ * */
 typedef enum {
     DONE,
     MISSING,
 } SectionState;
 
-/*
- *
- * Header Level
- * Used to track when to insert table of contents */
+/**
+ * @brief Header level to track when to insert table of contents
+ * */
 typedef enum {
     H0,
     H1,

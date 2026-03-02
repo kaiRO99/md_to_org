@@ -1,7 +1,11 @@
-
+/**
+ * @file replace_substring.c
+ * @brief Repalces first instance of a substring with another.
+ * @author Kai Ryall Ota
+ * @date Feb 2026
+ * */
 // Enable POSIX function
 #define _POSIX_C_SOURCE 200809L
-
 #include "replace_substring.h"
 #include <stdlib.h>
 #include <string.h>
@@ -13,13 +17,14 @@
  * @param {char*} old_substring Substring to find and replace.
  * @param {char*} new_substring Substring to insert.
  *
- * @return {char*} edited  New string with replacement. */
+ * @return {char*} edited  New string with replacement.
+ * */
 char *replace_substring(const char *src, const char *old_substring,
                         const char *new_substring) {
     char *pos = strstr(src, old_substring);
     if (!pos) {
         return strdup(src);
-    }
+    } // if
 
     // Get sizes
     size_t old_len = strlen(old_substring);
@@ -32,11 +37,11 @@ char *replace_substring(const char *src, const char *old_substring,
     char *edited = malloc(pre_len + new_len + post_len + 1);
     if (!edited) {
         return NULL;
-    }
+    } // if
 
     memcpy(edited, src, pre_len); // Copy before the substring
     memcpy(edited + pre_len, new_substring, new_len);
     memcpy(edited + pre_len + new_len, pos + old_len, post_len + 1);
 
     return edited;
-}
+} // replace_substring()
