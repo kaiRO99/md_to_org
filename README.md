@@ -9,25 +9,25 @@ make
 md_to_org [OPTIONS] [TARGET] SOURCE
 ```
 
-Arguments:
-  SOURCE             File or directory to convert
-  TARGET             Output file or directory (optional)
+Arguments:</br>
+  SOURCE             File or directory to convert</br>
+  TARGET             Output file or directory (optional)</br>
   
-Options:
-  -o, --output PATH  Output path for conversion (file or directory)
-  -p, --prop         Includes the properties section, if it exists
-  -t, --toc          Includes a table of contents (:toc:) after the first level 1 header
-  -r, --recursive    Process directories recursively
-  -f, --force        Overwrite existing files
-  -d, --dry-run      Show what would be done without doing it
-  -h, --help         Show this help message
+Options:</br>
+  -o, --output PATH  Output path for conversion (file or directory)</br>
+  -p, --prop         Includes the properties section, if it exists</br>
+  -t, --toc          Includes a table of contents (:toc:) after the first level 1 header</br>
+  -r, --recursive    Process directories recursively</br>
+  -f, --force        Overwrite existing files</br>
+  -d, --dry-run      Show what would be done without doing it</br>
+  -h, --help         Show this help message</br>
   
-Examples:
-  md_to_org input.md                    Convert single file (output: input.org)
-  md_to_org -o output.org input.md      Convert with specific output name
-  md_to_org docs/                       Convert all .md files in directory
-  md_to_org -o out/ docs/               Convert directory docs/ to out/ 
-  md_to_org -r docs/                    Convert directory recursively
+Examples:</br>
+  md_to_org input.md                    Convert single file (output: input.org)</br>
+  md_to_org -o output.org input.md      Convert with specific output name</br>
+  md_to_org docs/                       Convert all .md files in directory</br>
+  md_to_org -o out/ docs/               Convert directory docs/ to out/ </br>
+  md_to_org -r docs/                    Convert directory recursively</br>
 
 ## TODO
 - [x] Tests for files 
