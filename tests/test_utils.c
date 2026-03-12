@@ -4,7 +4,6 @@
 #include "../include/starts_with.h"
 #include "unity.h"
 #include <stdlib.h>
-#include <string.h>
 
 void setUp(void) {
     // Setup before each test

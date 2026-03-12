@@ -1,0 +1,191 @@
+[
+  {
+    "file": "src/is_md.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/is_md.c",
+      "-o",
+      "bin/build/is_md.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/is_md.o"
+  },
+  {
+    "file": "src/main.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/main.c",
+      "-o",
+      "bin/build/main.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/main.o"
+  },
+  {
+    "file": "src/parse_file.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/parse_file.c",
+      "-o",
+      "bin/build/parse_file.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/parse_file.o"
+  },
+  {
+    "file": "src/parse_line.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/parse_line.c",
+      "-o",
+      "bin/build/parse_line.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/parse_line.o"
+  },
+  {
+    "file": "src/print_usage.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/print_usage.c",
+      "-o",
+      "bin/build/print_usage.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/print_usage.o"
+  },
+  {
+    "file": "src/replace_all.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/replace_all.c",
+      "-o",
+      "bin/build/replace_all.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/replace_all.o"
+  },
+  {
+    "file": "src/replace_substring.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/replace_substring.c",
+      "-o",
+      "bin/build/replace_substring.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/replace_substring.o"
+  },
+  {
+    "file": "src/starts_with.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/starts_with.c",
+      "-o",
+      "bin/build/starts_with.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/starts_with.o"
+  },
+  {
+    "file": "src/truncate.c",
+    "arguments": [
+      "gcc",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-I./include",
+      "-I./tests",
+      "-I./tests/unity",
+      "-I./tests/utils",
+      "-c",
+      "src/truncate.c",
+      "-o",
+      "bin/build/truncate.o"
+    ],
+    "directory": "/home/kai/Projects/md_to_org",
+    "output": "bin/build/truncate.o"
+  }
+]

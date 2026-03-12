@@ -5,6 +5,7 @@
  * @date Feb 2026
  * */
 #include "parse_file.h"
+#include "../include/config.h"
 #include "parse_line.h"
 #include "replace_substring.h"
 #include "starts_with.h"
@@ -26,7 +27,8 @@
  *              2:error opening target
  *              }
  **/
-int parse_file(const char *filename, const char *target_filename) {
+int parse_file(const char *filename, const char *target_filename,
+               Config *config) {
 
     FILE *fin = fopen(filename, "r");         // Input file pointer
     FILE *fout = fopen(target_filename, "w"); // Output file pointer
@@ -57,7 +59,9 @@ int parse_file(const char *filename, const char *target_filename) {
                 if (starts_with(curr_line, "---") == 0) {
                     // Properties
                     curr_state = PROPERTIES;
-                    fputs(":PROPERTIES:\n", fout);
+                    if (config->prop) {
+                        fputs(":PROPERTIES:\n", fout);
+                    }
                     continue;
                 } // if
             } // if
@@ -84,11 +88,13 @@ int parse_file(const char *filename, const char *target_filename) {
                     counter++;
                 } // while
 
-                // If no table of contents inserted and we are at H2
-                if (toc_state == MISSING && counter == 2) {
-                    // Insert table of contents before first H2
-                    fputs("\n** Table of Contents :TOC:\n\n", fout);
-                    toc_state = DONE;
+                if (config->toc) {
+                    // If no table of contents inserted and we are at H2
+                    if (toc_state == MISSING && counter == 2) {
+                        // Insert table of contents before first H2
+                        fputs("\n** Table of Contents :TOC:\n\n", fout);
+                        toc_state = DONE;
+                    } // if
                 } // if
 
                 fputs(curr_line, fout);
@@ -118,39 +124,44 @@ int parse_file(const char *filename, const char *target_filename) {
             continue;
 
         } else if (curr_state == PROPERTIES) {
-            // Properties
+            // Properties - only print to target if prop config enabled
             if (starts_with(curr_line, "---") == 0) {
                 // End of properties
                 curr_state = DEFAULT;
-                fputs(":END:\n", fout);
+                if (config->prop) {
+
+                    fputs(":END:\n", fout);
+                } // if
                 prop_state = DONE;
                 continue;
             } // if
-            if (starts_with(curr_line, "- ") == 0) {
-                // In list
-                fseek(fout, -1, SEEK_CUR);
-                if (curr_sub_state != PROP_LIST) {
-                    // First property list item
-                    curr_sub_state = PROP_LIST;
-                    fputc(' ', fout); // for padding
-                } // if
-                // Not first property list item
-                char *new_line = replace_substring(curr_line, "- ", ":");
-                char *list_item = truncate(new_line);
-                fputs(list_item, fout);
-                free(new_line);
-                continue;
-            } else if (curr_sub_state == PROP_LIST) {
-                // End of list
-                fseek(fout, -1, SEEK_CUR);
-                fputs(":\n", fout);
-                curr_sub_state = NONE;
 
-            } // else if
+            if (config->prop) {
+                if (starts_with(curr_line, "- ") == 0) {
+                    // In list
+                    fseek(fout, -1, SEEK_CUR);
+                    if (curr_sub_state != PROP_LIST) {
+                        // First property list item
+                        curr_sub_state = PROP_LIST;
+                        fputc(' ', fout); // for padding
+                    } // if
+                    // Not first property list item
+                    char *new_line = replace_substring(curr_line, "- ", ":");
+                    char *list_item = truncate(new_line);
+                    fputs(list_item, fout);
+                    free(new_line);
+                    continue;
+                } else if (curr_sub_state == PROP_LIST) {
+                    // End of list
+                    fseek(fout, -1, SEEK_CUR);
+                    fputs(":\n", fout);
+                    curr_sub_state = NONE;
 
-            // Not in a property list
-            fputc(':', fout);
-            fputs(curr_line, fout);
+                } // else if
+                // Not in a property list
+                fputc(':', fout);
+                fputs(curr_line, fout);
+            } // if
             continue;
         } else if (curr_state == CODE_BLOCK) {
             if (starts_with(curr_line, "```") == 0) {

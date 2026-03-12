@@ -1,0 +1,3 @@
+#+title: All
+
+This file is to be replaced when the -f/--force flag is used.

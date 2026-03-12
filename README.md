@@ -1,21 +1,50 @@
 # md_to_org 
 
-Covert markdown files to Org-mode.
+Covert markdown files to Org-mode format.
 
-./md_to_org filename.md targetfilename.org
+### Usage 
+
+```
+make
+md_to_org [OPTIONS] [TARGET] SOURCE
+```
+
+Arguments:
+  SOURCE             File or directory to convert
+  TARGET             Output file or directory (optional)
+
+Options:
+  -o, --output PATH  Output path for conversion (file or directory)
+  -p, --prop         Includes the properties section, if it exists
+  -t, --toc          Includes a table of contents (:toc:) after the first level 1 header
+  -r, --recursive    Process directories recursively
+  -f, --force        Overwrite existing files
+  -d, --dry-run      Show what would be done without doing it
+  -h, --help         Show this help message
+
+Examples:
+  md_to_org input.md                    Convert single file (output: input.org)
+  md_to_org -o output.org input.md      Convert with specific output name
+  md_to_org docs/                       Convert all .md files in directory
+  md_to_org -o out/ docs/               Convert directory docs/ to out/ 
+  md_to_org -r docs/                    Convert directory recursively
 
 ## TODO
-- [ ] Tests for files 
+- [x] Tests for files 
 - [x] Tests for replace_all()
 - [x] Fix table of content placement 
-- [ ] Fix args 
-  - [ ] Source filename - use for target filename 
-  - [ ] Source file does not exist
-  - [ ] Source and target filenames
-  - [ ] Target file already exists
+- [x] Tests for command line 
+- [x] Fix args 
+  - [x] Source filename - use for target filename 
+  - [x] Source file does not exist
+  - [x] Source and target filenames
+  - [x] Target file already exists
 - [ ] Change name to md2org
 - [ ] Enforce space between codeblock start tag and language 
-- [ ] Nested emphasis chars: text*text`code*code` (should not trigger bold conversion).
+- [ ] Test nested emphasis chars in inline-code: text*text`code*code` (should not trigger bold conversion).
+- [ ] Change parse_file() arguments to just config?
+- [x] Add check in arg parsing that config.target is .md when case -o, else print use
+- [x] Add cli test for recursive, w/ target path
 
 ## Roadmap
 
@@ -39,4 +68,8 @@ Covert markdown files to Org-mode.
 ## Notes
 - Tables require user to press tab to auto adjust width 
 
- LSAN_OPTIONS=verbosity=1 ./bin/md_to_org ./tests/test.md ./tests/test.org
+## Tests
+- test_cli: Test command line options 
+- test_utils: Test helper functions 
+- test_line: Test line parsing logic
+- test_file: Test individual file parsing logic

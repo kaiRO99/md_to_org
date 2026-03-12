@@ -1,58 +1,63 @@
-* Header test
+---
+Property1: tag
+Property list: 
+    - list 1
+    - list 2
+    - list 3
+Property: *test*
+Property: **test**
+---
+# Header test
  text
  text
  text
 
-** H2
+## H2
 
 code block
 
-#+BEGIN_SRC C
+``` C
 int test(){
     int test_snake_case = 1;
     char[] = "test **bold** test"
     return test_snake_case;
 }
-#+END_SRC
+```
 
 text
 
-#+BEGIN_SRC Python
+``` Python
 def test():
     print("Hello world!")
-#+END_SRC
+```
 
 blockquote
 
 text
 
-#+BEGIN_QUOTE
- quote
- quote
- quote
-#+END_QUOTE
+> quote
+> quote
+> quote
 
 text
-#+BEGIN_QUOTE
-     quote
-     quote
-#+END_QUOTE
+    > quote
+    > quote
 text
 text
 text
 
-** H2
+## H2
 text
  # text
 text
 
-*** H3
+### H3
 text
  # text
 text
 
 | test | test | test | test |
-|------+------+------+------|
+|------|------|------|------|
 | test | test | test | test |
 | test | test | test | test |
 | test | test | test | test |
@@ -60,7 +65,7 @@ text
 text
 
 | test | test | test | test |
-| -----+ ---- +----- +----- |
+|:-----|:----:|-----:|-----:|
 | test | test | test | test |
 | test | test | test | test |
 
@@ -69,25 +74,25 @@ text
 |--|--|--|
 
 | test | test | test | test |
-|------+------+------+------|
-| *test* | ~test~ | [[url][alt]] | [[path][alt]] |
-| *test*| /test/ | /test/ | +test+ |
+|------|------|------|------|
+| **test** | `test` | [alt](url) | ![alt](path) |
+| __test__| *test* | _test_ | ~test~ |
 | test | test | test | test |
 
-* H1
+# H1
 
  # text
 text
 
-** H2
+## H2
 
 text text
 
-text *bold* text
-text*text*text
-text /italic/ text
-text /italic/ text
-text +sthrough+ text
-text ~code~ text
-text [[url][alt]] text
-text [[url][alt]] text
+text **bold** text
+text__text__text
+text _italic_ text
+text *italic* text
+text ~sthrough~ text
+text `code` text
+text [alt](url) text
+text ![alt](url) text

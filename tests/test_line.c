@@ -14,10 +14,9 @@
  *       - All in a line except table separator
  * */
 #include "../include/parse_line.h"
-#include "unity.h"
-#include "unity_internals.h"
+#include "../tests/unity/unity.h"
+#include "../tests/unity/unity_internals.h"
 #include <stdlib.h>
-#include <string.h>
 
 /**
  * @brief Setup before each test
