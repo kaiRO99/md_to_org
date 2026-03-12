@@ -1,6 +1,6 @@
 # md_to_org 
 
-Covert markdown files to Org-mode format.
+Convert markdown files to Org-mode format.
 
 ### Usage 
 
@@ -12,7 +12,7 @@ md_to_org [OPTIONS] [TARGET] SOURCE
 Arguments:
   SOURCE             File or directory to convert
   TARGET             Output file or directory (optional)
-
+  
 Options:
   -o, --output PATH  Output path for conversion (file or directory)
   -p, --prop         Includes the properties section, if it exists
@@ -21,7 +21,7 @@ Options:
   -f, --force        Overwrite existing files
   -d, --dry-run      Show what would be done without doing it
   -h, --help         Show this help message
-
+  
 Examples:
   md_to_org input.md                    Convert single file (output: input.org)
   md_to_org -o output.org input.md      Convert with specific output name
